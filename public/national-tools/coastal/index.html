@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beach &amp; Coastal Conditions Today | Chris Izworski</title>
+<meta name="description" content="Check U.S. beach and coastal conditions today using NWS rip/swim risk, NDBC waves and wind, water temperature, and NOAA tide predictions.">
+<link rel="canonical" href="https://chrisizworski.com/national-tools/coastal/"><meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website"><meta property="og:title" content="Beach &amp; Coastal Conditions Today"><meta property="og:description" content="Official beach risk first, then nearby buoy observations and tide context for one U.S. location."><meta property="og:url" content="https://chrisizworski.com/national-tools/coastal/">
+<link rel="stylesheet" href="/assets/national-tools.css?v=20260902-coastal1">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://chrisizworski.com/#person","name":"Chris Izworski","url":"https://chrisizworski.com/"},{"@type":"WebSite","@id":"https://chrisizworski.com/#website","url":"https://chrisizworski.com/","name":"Chris Izworski","author":{"@id":"https://chrisizworski.com/#person"}},{"@type":"SoftwareApplication","@id":"https://chrisizworski.com/national-tools/coastal/#page","url":"https://chrisizworski.com/national-tools/coastal/","name":"Beach & Coastal Conditions Today","description":"A U.S. coastal decision tool combining official NWS beach risk with nearby NDBC observations and NOAA tide predictions while keeping each source class separate.","dateModified":"2026-09-02","author":{"@id":"https://chrisizworski.com/#person"},"isPartOf":{"@id":"https://chrisizworski.com/#website"}}]}</script>
+</head><body>
+<header class="site-head"><div class="wrap head-in"><a class="brand" href="/">Chris Izworski</a><nav class="nav" aria-label="Primary"><a href="/national-tools/">U.S. Outdoor Tools</a><a href="/tools/">Michigan Tools</a></nav></div></header>
+<main>
+<section class="hero"><div class="wrap"><div class="eyebrow">Coastal water window · NWS + NOAA/NDBC + NOAA CO-OPS</div><h1>Beach &amp; Coastal Conditions Near Me</h1><p class="lede">Start with the official beach-risk forecast. Then see what nearby waves, wind, water temperature and tides are doing without turning unlike signals into a fake safety score.</p></div></section>
+<section class="section"><div class="wrap">
+<div class="tool-nav"><a href="/national-tools/">All U.S. tools</a><a href="/national-tools/rivers/">Rivers</a><a href="/national-tools/water/">Water planning</a><a href="/great-lakes-beaches/">Michigan beaches</a></div>
+<form id="loc" class="locator"><input aria-label="U.S. city or ZIP" placeholder="City or ZIP" required><button class="btn" type="submit">Check coastal conditions</button><button type="button" class="secondary-btn geo-btn" data-use-location>Use my location</button></form>
+<p class="near-me-note">Use a coastal city, beach town or ZIP. The tool first verifies that the location is within 25 miles of an applicable NWS beach-forecast area; only then does it add nearby buoy and tide context.</p>
+<p class="location-privacy">Optional. Device location is rounded to about 0.001° before lookup and is not included in analytics.</p><div class="status" aria-live="polite"></div>
+<div id="result" class="result" hidden>
+  <div class="result-head"><span id="level" class="pill"></span><span id="coverage" class="pill"></span></div>
+  <div id="answer" class="answer"></div><p id="detail"></p>
+  <div id="decision-flow" class="action-grid"><div class="mini-card"><span class="tool-kicker">What changed?</span><strong id="changed-title">Nearby water</strong><small id="changed">—</small></div><div class="mini-card"><span class="tool-kicker">What happens next?</span><strong id="next-title">Next period</strong><small id="next">—</small></div></div>
+  <div class="decision-panel" data-coastal-detail><div class="section-head"><div><span class="tool-kicker">Official beach forecast</span><h2>Today and tomorrow</h2></div><p class="small">NWS risk remains the controlling forecast signal when it is available.</p></div><div id="forecast-grid" class="grid"></div></div>
+  <div class="decision-panel" data-coastal-detail><div class="section-head"><div><span class="tool-kicker">Observed now</span><h2>Nearest reporting buoy or station</h2></div><p id="obs-distance" class="small"></p></div><div id="obs-grid" class="metrics"></div><p id="obs-time" class="small"></p></div>
+  <div class="decision-panel" data-coastal-detail><div class="section-head"><div><span class="tool-kicker">Tidal context</span><h2>Next NOAA tide predictions</h2></div><p id="tide-station" class="small"></p></div><div id="tide-grid" class="metrics"></div><p class="small">Predictions are referenced to the named station and MLLW datum. They are not observed water level.</p></div>
+  <div id="mi" class="handoff" hidden><strong>Michigan has a deeper beach network.</strong> Open <a href="/great-lakes-beaches/">Michigan Great Lakes Beaches</a> for beach-by-beach conditions and local detail.</div>
+  <p id="updated" class="small"></p>
+</div>
+</div></section>
+<section class="section"><div class="wrap grid">
+<div class="source-box"><h2>1. Official risk first</h2><p>The National Weather Service beach forecast can include rip-current or swim risk, surf, winds, weather and water temperature. A High or Moderate category is never downgraded because an offshore buoy looks calmer.</p></div>
+<div class="source-box"><h2>2. Observations explain what changed</h2><p>NDBC stations report measured waves, wind and water temperature when those sensors are available. The tool shows station distance and a roughly three-hour change rather than pretending an offshore station is the exact beach.</p></div>
+<div class="source-box"><h2>3. Tides explain timing, not safety</h2><p>NOAA CO-OPS predictions show the next high and low tides near tidal coasts. Great Lakes water levels are not treated as tides, and missing tide data does not become a favorable signal.</p></div>
+<div class="source-box"><h2>4. Local rules still win</h2><p>Beach flags, closures, lifeguards, emergency instructions, storms, shoreline structures and local currents can matter more than a regional forecast. This tool does not declare swimming or boating safe.</p></div>
+</div></section>
+<section class="section"><div class="wrap"><div class="truth-box"><strong>Decision boundary:</strong> Source proximity is not location eligibility. This tool first requires nearby NWS beach-forecast coverage, then organizes observations and predictions. It does not create a universal recreation-safety score, infer conditions where data is missing, or substitute a distant buoy or tide station for a coastal location.</div></div></section>
+</main>
+<footer class="footer"><div class="wrap">© 2026 <a href="/">Chris Izworski</a> · NOAA/NWS, NDBC and CO-OPS remain separately labeled.</div></footer>
+<script src="/assets/national-tools.js?v=20260902-coastal1"></script>
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  const N=window.NationalTools,form=document.getElementById("loc");
+  function value(v,suffix){return v==null?"Unavailable":String(v)+(suffix||"")}
+  function riskClass(code){return code==="high"?"danger":code==="moderate"?"warn":""}
+  function forecastCard(day,label){
+    if(!day)return '<div class="source-box"><span class="tool-kicker">'+label+'</span><h3>Official beach forecast unavailable</h3><p>No NWS beach-forecast polygon was returned within the search radius.</p></div>';
+    const bits=[];
+    if(day.surf)bits.push("Surf "+day.surf);if(day.winds)bits.push("Winds "+day.winds);if(day.water_temperature)bits.push("Water "+day.water_temperature);if(day.weather)bits.push(day.weather);
+    return '<div class="source-box"><span class="tool-kicker">'+label+' · '+N.esc(day.site_name)+'</span><h3 class="'+riskClass(day.rip_swim_risk_code)+'">'+N.esc(day.rip_swim_risk||"Risk label unavailable")+'</h3><p>'+N.esc(bits.join(" · ")||"Forecast detail unavailable")+'</p><small>'+N.esc(day.distance_miles==null?"Forecast-area distance unavailable":day.distance_miles+" mi from searched point")+'</small></div>';
+  }
+  function metric(v,label){return '<div class="metric"><b>'+N.esc(v)+'</b><span>'+N.esc(label)+'</span></div>'}
+  function fmtTide(t,tz){return N.fmtInZone(t,tz,{weekday:"short",hour:"numeric",minute:"2-digit"})}
+  async function run(loc){
+    const r=await fetch("/api/national-coastal?lat="+encodeURIComponent(loc.latitude)+"&lon="+encodeURIComponent(loc.longitude));
+    const d=await N.readJsonResponse(r,"Coastal data unavailable");
+    document.getElementById("result").hidden=false;
+    const applicable=d.applicability&&d.applicability.eligible===true;
+    document.getElementById("level").textContent=d.decision.level.replace(/-/g," ");
+    document.getElementById("coverage").textContent=applicable?(d.coastal_available?"coastal sources found":"coastal coverage verified"):(d.applicability&&d.applicability.status==="coverage-unverified"?"coastal applicability unverified":"not a coastal location for this tool");
+    document.getElementById("answer").textContent=d.decision.headline+" — "+N.label(loc);
+    document.getElementById("detail").textContent=d.decision.detail;
+    document.getElementById("decision-flow").hidden=!applicable;
+    document.querySelectorAll("[data-coastal-detail]").forEach(function(panel){panel.hidden=!applicable});
+    document.getElementById("mi").hidden=!applicable||loc.stateCode!=="MI";
+    if(!applicable){
+      document.getElementById("changed").textContent=d.decision.what_changed||"";
+      document.getElementById("next").textContent=d.decision.what_next||"";
+      document.getElementById("updated").textContent="Retrieved "+N.fmtDate(d.retrieved_at)+" · "+(d.applicability&&d.applicability.status==="coverage-unverified"?"location admission could not be verified":"location did not pass the coastal admission check");
+      if(typeof N.track==="function")N.track("National Coastal Result",{coverage:false,applicability:d.applicability&&d.applicability.status||"unknown",risk:"unavailable",sources_available:0});
+      return;
+    }
+    document.getElementById("changed").textContent=d.decision.what_changed;
+    document.getElementById("next").textContent=d.decision.what_next;
+    const day1=d.official_beach_forecast&&d.official_beach_forecast.day1,day2=d.official_beach_forecast&&d.official_beach_forecast.day2;
+    document.getElementById("forecast-grid").innerHTML=forecastCard(day1,"Today")+forecastCard(day2,"Tomorrow");
+    const o=d.nearby_observation,obs=document.getElementById("obs-grid");
+    if(o){obs.innerHTML=metric(value(o.wave_height_ft," ft"),"wave height")+metric(value(o.wind_mph," mph"),"wind")+metric(value(o.gust_mph," mph"),"gust")+metric(value(o.water_temperature_f,"°F"),"water temperature");document.getElementById("obs-distance").textContent=o.station.name+" · "+o.station.distance_miles+" mi away";document.getElementById("obs-time").textContent="Observed "+N.fmtDate(o.observed_at)+" · offshore or station context, not exact beach conditions"}
+    else{obs.innerHTML=metric("Unavailable","nearby NDBC observation");document.getElementById("obs-distance").textContent="No active reporting station was returned within the search radius.";document.getElementById("obs-time").textContent=""}
+    const t=d.tide_context,tg=document.getElementById("tide-grid");
+    if(t&&t.predictions&&t.predictions.length){tg.innerHTML=t.predictions.slice(0,4).map(function(p){return metric(fmtTide(p.time,loc.timeZone)+" · "+p.height_ft.toFixed(1)+" ft",p.type+" tide")}).join("");document.getElementById("tide-station").textContent=t.station.name+" · "+t.station.distance_miles+" mi away · MLLW"}
+    else{tg.innerHTML=metric("Unavailable","nearby tide prediction");document.getElementById("tide-station").textContent=t&&t.unavailable_reason?t.unavailable_reason:"No NOAA tide-prediction station returned within the search radius."}
+    const stale=(d.sources||[]).filter(function(s){return s.stale===true}).map(function(s){return s.source_name});
+    document.getElementById("updated").textContent="Retrieved "+N.fmtDate(d.retrieved_at)+(d.degraded?" · one or more upstream sources degraded":"")+(stale.length?" · stale: "+stale.join(", "):"");
+    if(typeof N.track==="function")N.track("National Coastal Result",{coverage:Boolean(d.coastal_available),applicability:d.applicability&&d.applicability.status||"unknown",risk:day1&&day1.rip_swim_risk_code||"unavailable",sources_available:(d.sources||[]).filter(function(s){return s.available!==false}).length});
+  }
+  N.bind(form,run);const q=new URLSearchParams(location.search).get("q");if(q){form.querySelector("input").value=q;form.requestSubmit();}
+});
+</script>
+</body></html>
