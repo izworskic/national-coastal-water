@@ -12,6 +12,12 @@
       ]
     }
   ],
+  "rewrites": [
+    {
+      "source": "/national-tools/thunder-hole-live/_api/live",
+      "destination": "/api/thunder-hole"
+    }
+  ],
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "public"
 }
