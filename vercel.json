@@ -16,6 +16,22 @@
     {
       "source": "/national-tools/thunder-hole-live/_api/live",
       "destination": "/api/thunder-hole"
+    },
+    {
+      "source": "/national-tools/coastal/thunder-hole-live/_api/live",
+      "destination": "/api/thunder-hole"
+    },
+    {
+      "source": "/national-tools/coastal/thunder-hole-live",
+      "destination": "/national-tools/thunder-hole-live/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/thunder-hole-live/",
+      "destination": "/national-tools/thunder-hole-live/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/thunder-hole-live/:path*",
+      "destination": "/national-tools/thunder-hole-live/:path*"
     }
   ],
   "buildCommand": "npm run vercel-build",
