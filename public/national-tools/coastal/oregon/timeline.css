@@ -1,0 +1,1 @@
+.timeline:not(:has(.window-band)) .timeline-legend span:first-child{display:none}
