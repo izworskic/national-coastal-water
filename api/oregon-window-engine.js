@@ -270,6 +270,15 @@ function evaluateThorsWell(input = {}) {
 }
 
 function evaluate(site, input = {}) {
+  const knownSite = Object.values(SITE).includes(site);
+  if (knownSite && input.hazard_veto === true) {
+    return baseResult(site, input.date, STATUS.HAZARD_VETO, {
+      reason_code: input.hazard_reason || "HAZARD_VETO",
+      window: null,
+      safe_until: null,
+    });
+  }
+
   switch (site) {
     case SITE.YAQUINA: return evaluateYaquina(input);
     case SITE.HAYSTACK: return evaluateHaystack(input);
