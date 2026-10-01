@@ -1,0 +1,68 @@
+name: Oregon coastal frontend verification
+
+on:
+  pull_request:
+    paths:
+      - "api/oregon-coastal.js"
+      - "api/oregon-window-engine.js"
+      - "public/national-tools/coastal/oregon/**"
+      - "scripts/oregon-frontend-*.mjs"
+      - "tests/oregon-*.test.js"
+      - "vercel.json"
+      - ".github/workflows/oregon-coastal-frontend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install project dependencies
+        run: npm install --ignore-scripts
+
+      - name: Syntax check
+        run: |
+          node --check api/oregon-coastal.js
+          node --check public/national-tools/coastal/oregon/app.js
+          node --check scripts/oregon-frontend-fixture-server.mjs
+          node --check scripts/oregon-frontend-visual-check.mjs
+
+      - name: Run deterministic regression suite
+        run: npm test
+
+      - name: Install browser verifier
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start deterministic frontend server
+        run: |
+          node scripts/oregon-frontend-fixture-server.mjs > /tmp/oregon-fixture.log 2>&1 &
+          echo $! > /tmp/oregon-fixture.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/national-tools/coastal/oregon/_api/decision?date=2026-10-01 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/oregon-fixture.log
+          exit 1
+
+      - name: Browser and screenshot verification
+        run: node scripts/oregon-frontend-visual-check.mjs
+
+      - name: Upload visual verification artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oregon-coastal-visual-verification
+          path: artifacts/oregon-coastal/*.png
+          if-no-files-found: error
+          retention-days: 14
