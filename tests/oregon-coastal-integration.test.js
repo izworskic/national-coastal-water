@@ -34,27 +34,27 @@ test("hazard veto also dominates missing source guidance", () => {
   assert.equal(result.window, null);
 });
 
-test("Yaquina production source uses verified BLM coverage and fails stale beyond it", () => {
-  const sep10 = T.yaquinaOfficialSource("2026-09-10");
-  assert.equal(sep10.status, "ok");
-  assert.deepEqual(sep10.entries, ["8:00 – 8:45a", "4:30 – 5:45p"]);
-  assert.equal(sep10.closing, "6:00p");
+test("Yaquina production source uses current verified BLM coverage and fails stale beyond it", () => {
+  const oct1 = T.yaquinaOfficialSource("2026-10-01");
+  assert.equal(oct1.status, "ok");
+  assert.deepEqual(oct1.entries, ["8:30 – 10:30a"]);
+  assert.equal(oct1.closing, "6:00p");
 
-  const oct2 = T.yaquinaOfficialSource("2026-10-02");
-  assert.equal(oct2.status, "stale");
-  assert.match(oct2.detail, /2026-09/);
+  const nov1 = T.yaquinaOfficialSource("2026-11-01");
+  assert.equal(nov1.status, "stale");
+  assert.match(nov1.detail, /2026-10/);
   const decision = engine.evaluate(engine.SITE.YAQUINA, {
-    date: "2026-10-02",
-    source: { status: oct2.status },
+    date: "2026-11-01",
+    source: { status: nov1.status },
   });
   assert.equal(decision.status, engine.STATUS.SOURCE_STALE);
   assert.equal(decision.window, null);
 });
 
 test("Yaquina official source can emit multiple published intervals without merging them", () => {
-  const source = T.yaquinaOfficialSource("2026-09-25");
+  const source = T.yaquinaOfficialSource("2026-10-09");
   const result = engine.evaluate(engine.SITE.YAQUINA, {
-    date: "2026-09-25",
+    date: "2026-10-09",
     discovery_windows: source.entries,
     closing: source.closing,
     source: { status: source.status },
