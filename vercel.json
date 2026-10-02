@@ -18,6 +18,46 @@
       "destination": "/api/oregon-coastal"
     },
     {
+      "source": "/national-tools/coastal/oregon",
+      "destination": "/national-tools/coastal/oregon/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/",
+      "destination": "/national-tools/coastal/oregon/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/yaquina-head",
+      "destination": "/national-tools/coastal/oregon/yaquina-head/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/yaquina-head/",
+      "destination": "/national-tools/coastal/oregon/yaquina-head/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/haystack-rock",
+      "destination": "/national-tools/coastal/oregon/haystack-rock/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/haystack-rock/",
+      "destination": "/national-tools/coastal/oregon/haystack-rock/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/hug-point",
+      "destination": "/national-tools/coastal/oregon/hug-point/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/hug-point/",
+      "destination": "/national-tools/coastal/oregon/hug-point/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/thors-well",
+      "destination": "/national-tools/coastal/oregon/thors-well/index.html"
+    },
+    {
+      "source": "/national-tools/coastal/oregon/thors-well/",
+      "destination": "/national-tools/coastal/oregon/thors-well/index.html"
+    },
+    {
       "source": "/national-tools/thunder-hole-live/_api/live",
       "destination": "/api/thunder-hole"
     },
