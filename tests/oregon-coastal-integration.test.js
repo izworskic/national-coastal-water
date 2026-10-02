@@ -3,6 +3,8 @@ const assert = require("node:assert/strict");
 const engine = require("../api/oregon-window-engine");
 const adapter = require("../api/oregon-coastal");
 
+const T = adapter._test;
+
 test("authoritative hazard veto dominates every Oregon site claim type", () => {
   for (const site of Object.values(engine.SITE)) {
     const result = engine.evaluate(site, {
@@ -32,27 +34,62 @@ test("hazard veto also dominates missing source guidance", () => {
   assert.equal(result.window, null);
 });
 
+test("Yaquina production source uses verified BLM coverage and fails stale beyond it", () => {
+  const sep10 = T.yaquinaOfficialSource("2026-09-10");
+  assert.equal(sep10.status, "ok");
+  assert.deepEqual(sep10.entries, ["8:00 – 8:45a", "4:30 – 5:45p"]);
+  assert.equal(sep10.closing, "6:00p");
+
+  const oct2 = T.yaquinaOfficialSource("2026-10-02");
+  assert.equal(oct2.status, "stale");
+  assert.match(oct2.detail, /2026-09/);
+  const decision = engine.evaluate(engine.SITE.YAQUINA, {
+    date: "2026-10-02",
+    source: { status: oct2.status },
+  });
+  assert.equal(decision.status, engine.STATUS.SOURCE_STALE);
+  assert.equal(decision.window, null);
+});
+
+test("Yaquina official source can emit multiple published intervals without merging them", () => {
+  const source = T.yaquinaOfficialSource("2026-09-25");
+  const result = engine.evaluate(engine.SITE.YAQUINA, {
+    date: "2026-09-25",
+    discovery_windows: source.entries,
+    closing: source.closing,
+    source: { status: source.status },
+  });
+  assert.equal(result.status, engine.STATUS.OFFICIAL_WINDOW);
+  assert.equal(result.windows.length, 2);
+});
+
+test("Haystack uses the NOAA North Jetty station named by HRAP", () => {
+  const meta = T.SITE_META[engine.SITE.HAYSTACK];
+  assert.equal(meta.tide_station, "9440574");
+  assert.match(meta.tide_station_name, /North Jetty, WA/);
+});
+
 test("astronomical daylight context is plausible for the Oregon coast", () => {
-  const meta = adapter._test.SITE_META[engine.SITE.YAQUINA];
-  const daylight = adapter._test.daylightContext(meta, "2026-10-01");
+  const meta = T.SITE_META[engine.SITE.YAQUINA];
+  const daylight = T.daylightContext(meta, "2026-10-01");
   assert.ok(daylight);
   assert.ok(daylight.sunrise_minute > 6 * 60 && daylight.sunrise_minute < 9 * 60, daylight.sunrise_clock);
   assert.ok(daylight.sunset_minute > 17 * 60 && daylight.sunset_minute < 20 * 60, daylight.sunset_clock);
   assert.ok(daylight.sunset_minute > daylight.sunrise_minute);
 });
 
-test("daylight-low selection honors the actual daylight interval", () => {
+test("daylight-low selection excludes a lower nighttime tide for Hug Point and Haystack", () => {
   const tides = [
     { type: "low", minute_of_day: 5 * 60, height_ft: -0.5, clock: "5:00 AM" },
     { type: "low", minute_of_day: 10 * 60, height_ft: 0.8, clock: "10:00 AM" },
     { type: "low", minute_of_day: 22 * 60, height_ft: -1.0, clock: "10:00 PM" },
   ];
-  const low = adapter._test.pickDaylightLow(tides, { sunrise_minute: 7 * 60, sunset_minute: 19 * 60 });
+  const low = T.pickDaylightLow(tides, { sunrise_minute: 7 * 60, sunset_minute: 19 * 60 });
   assert.equal(low.clock, "10:00 AM");
 });
 
 test("hard-hazard classifier is narrow and authority oriented", () => {
-  assert.equal(adapter._test.hardHazard([{ event: "High Surf Warning" }]).event, "High Surf Warning");
-  assert.equal(adapter._test.hardHazard([{ event: "Tsunami Advisory" }]).event, "Tsunami Advisory");
-  assert.equal(adapter._test.hardHazard([{ event: "Small Craft Advisory" }]), null);
+  assert.equal(T.hardHazard([{ event: "High Surf Warning" }]).event, "High Surf Warning");
+  assert.equal(T.hardHazard([{ event: "Tsunami Advisory" }]).event, "Tsunami Advisory");
+  assert.equal(T.hardHazard([{ event: "Small Craft Advisory" }]), null);
 });
