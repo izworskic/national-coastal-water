@@ -3,10 +3,10 @@
 /*
  * Oregon Coastal Window Engine
  *
- * This module intentionally keeps site-specific source truth separate. It does
- * not create a universal tide formula and it never labels an activity "safe".
- * Published access/discovery guidance wins when it exists; conflicts and
- * malformed source material fail closed.
+ * Site-specific authority rules stay separate. This module never creates a
+ * universal coastal score and never labels an activity "safe". Published
+ * access/discovery guidance wins when it exists; stale, conflicting, missing,
+ * or malformed source material fails closed.
  */
 
 const STATUS = Object.freeze({
@@ -14,6 +14,7 @@ const STATUS = Object.freeze({
   TIDEPOOL_OPPORTUNITY: "TIDEPOOL_OPPORTUNITY",
   NO_OPPORTUNITY: "NO_OPPORTUNITY",
   SOURCE_CONFLICT: "SOURCE_CONFLICT",
+  SOURCE_STALE: "SOURCE_STALE",
   SOURCE_UNAVAILABLE: "SOURCE_UNAVAILABLE",
   CONSERVATIVE_ACCESS_OPPORTUNITY: "CONSERVATIVE_ACCESS_OPPORTUNITY",
   RESEARCH_ONLY: "RESEARCH_ONLY",
@@ -31,10 +32,11 @@ const HAYSTACK_MAX_TIDEPOOL_LOW_FT = 1.0;
 
 function normalizedSourceGate(source) {
   if (!source || source.status !== "ok") {
+    const stale = source?.status === "stale";
     return {
       ok: false,
-      status: STATUS.SOURCE_UNAVAILABLE,
-      reason_code: source?.status === "stale" ? "STALE_SOURCE" : "SOURCE_UNAVAILABLE",
+      status: stale ? STATUS.SOURCE_STALE : STATUS.SOURCE_UNAVAILABLE,
+      reason_code: stale ? "STALE_SOURCE" : "SOURCE_UNAVAILABLE",
     };
   }
   if (source.conflict === true) {
@@ -124,62 +126,87 @@ function baseResult(site, date, status, extra = {}) {
   };
 }
 
+function discoveryEntries(input = {}) {
+  const raw = input.discovery_windows ?? input.discovery;
+  if (Array.isArray(raw)) return raw.map((value) => String(value ?? "").trim()).filter(Boolean);
+  if (raw == null) return [];
+  const value = String(raw).trim();
+  return value ? [value] : [];
+}
+
 function evaluateYaquina(input = {}) {
   const gate = normalizedSourceGate(input.source);
-  if (!gate.ok) return baseResult(SITE.YAQUINA, input.date, gate.status, { reason_code: gate.reason_code, window: null });
+  if (!gate.ok) return baseResult(SITE.YAQUINA, input.date, gate.status, { reason_code: gate.reason_code, window: null, windows: [] });
 
-  const published = String(input.discovery ?? "").trim();
-  if (!published) {
+  const published = discoveryEntries(input);
+  if (!published.length) {
     return baseResult(SITE.YAQUINA, input.date, STATUS.SOURCE_UNAVAILABLE, {
       reason_code: "MISSING_DISCOVERY_ENTRY",
       window: null,
+      windows: [],
     });
   }
 
-  if (/^no\s+exposure$/i.test(published)) {
+  const noExposure = published.filter((value) => /^no\s+exposure$/i.test(value));
+  if (noExposure.length === published.length) {
     return baseResult(SITE.YAQUINA, input.date, STATUS.NO_OPPORTUNITY, {
       reason_code: "NO_EXPOSURE",
-      source_text: published,
+      source_text: "No Exposure",
       window: null,
+      windows: [],
     });
   }
-
-  let window;
-  try {
-    window = parsePublishedWindow(published);
-  } catch (error) {
+  if (noExposure.length) {
     return baseResult(SITE.YAQUINA, input.date, STATUS.SOURCE_CONFLICT, {
-      reason_code: "UNPARSABLE_OR_AMBIGUOUS_OFFICIAL_WINDOW",
-      source_text: published,
-      detail: error.message,
+      reason_code: "CONFLICTING_DISCOVERY_ENTRIES",
+      source_text: published.join("; "),
       window: null,
+      windows: [],
       auto_corrected: false,
     });
   }
 
+  let windows;
+  try {
+    windows = published.map(parsePublishedWindow);
+  } catch (error) {
+    return baseResult(SITE.YAQUINA, input.date, STATUS.SOURCE_CONFLICT, {
+      reason_code: "UNPARSABLE_OR_AMBIGUOUS_OFFICIAL_WINDOW",
+      source_text: published.join("; "),
+      detail: error.message,
+      window: null,
+      windows: [],
+      auto_corrected: false,
+    });
+  }
+
+  let closing = null;
   if (input.closing) {
-    let closing;
     try {
       closing = parsePublishedClock(input.closing);
     } catch (error) {
       return baseResult(SITE.YAQUINA, input.date, STATUS.SOURCE_CONFLICT, {
         reason_code: "UNPARSABLE_CLOSING_TIME",
-        source_text: published,
+        source_text: published.join("; "),
         closing_text: input.closing,
         detail: error.message,
         window: null,
+        windows: [],
         auto_corrected: false,
       });
     }
 
-    if (window.end_minute > closing.minute_of_day) {
+    const conflictingWindow = windows.find((candidate) => candidate.end_minute > closing.minute_of_day);
+    if (conflictingWindow) {
       return baseResult(SITE.YAQUINA, input.date, STATUS.SOURCE_CONFLICT, {
         reason_code: "OFFICIAL_WINDOW_AFTER_CLOSING",
-        source_text: published,
+        source_text: published.join("; "),
         closing_text: input.closing,
-        source_window: window,
+        source_window: conflictingWindow,
+        source_windows: windows,
         closing,
         window: null,
+        windows: [],
         auto_corrected: false,
       });
     }
@@ -187,8 +214,10 @@ function evaluateYaquina(input = {}) {
 
   return baseResult(SITE.YAQUINA, input.date, STATUS.OFFICIAL_WINDOW, {
     reason_code: "PUBLISHED_TIDEPOOL_DISCOVERY_WINDOW",
-    source_text: published,
-    window,
+    source_text: published.join("; "),
+    window: windows[0] || null,
+    windows,
+    closing,
     auto_corrected: false,
   });
 }
@@ -215,6 +244,7 @@ function evaluateHaystack(input = {}) {
       reason_code: "DAYLIGHT_LOW_ABOVE_HRAP_THRESHOLD",
       daylight_low_ft: daylightLowFt,
       threshold_ft: threshold,
+      low_tide_time: input.low_tide_time || null,
       window: null,
     });
   }
@@ -249,11 +279,12 @@ function evaluateHugPoint(input = {}) {
   }
 
   // Oregon State Parks warns that tide and sand conditions vary and people can
-  // become stranded. A low-tide opportunity is therefore intentionally not
-  // converted into an exact safe-until timestamp.
+  // become stranded. A low-tide opportunity is intentionally not converted
+  // into an exact safe-until timestamp.
   return baseResult(SITE.HUG_POINT, input.date, STATUS.CONSERVATIVE_ACCESS_OPPORTUNITY, {
     reason_code: "LOW_TIDE_ACCESS_WITH_VARIABLE_SITE_CONDITIONS",
     low_tide_time: input.low_tide_time || null,
+    low_tide_ft: Number.isFinite(Number(input.low_tide_ft)) ? Number(input.low_tide_ft) : null,
     safe_until: null,
     exact_cutoff: false,
     window: null,
@@ -297,6 +328,7 @@ module.exports = {
     normalizedSourceGate,
     parsePublishedClock,
     parsePublishedWindow,
+    discoveryEntries,
     evaluateYaquina,
     evaluateHaystack,
     evaluateHugPoint,

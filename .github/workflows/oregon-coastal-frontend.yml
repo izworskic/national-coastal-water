@@ -5,6 +5,8 @@ on:
     paths:
       - "api/oregon-coastal.js"
       - "api/oregon-window-engine.js"
+      - "lib/oregon-coastal-adapter.js"
+      - "data/yaquina-head-tidepool-discovery.json"
       - "public/national-tools/coastal/oregon/**"
       - "scripts/oregon-frontend-*.mjs"
       - "tests/oregon-*.test.js"
@@ -32,9 +34,12 @@ jobs:
       - name: Syntax check
         run: |
           node --check api/oregon-coastal.js
+          node --check api/oregon-window-engine.js
+          node --check lib/oregon-coastal-adapter.js
           node --check public/national-tools/coastal/oregon/app.js
           node --check scripts/oregon-frontend-fixture-server.mjs
           node --check scripts/oregon-frontend-visual-check.mjs
+          node -e "JSON.parse(require('node:fs').readFileSync('data/yaquina-head-tidepool-discovery.json','utf8'))"
 
       - name: Run deterministic regression suite
         run: npm test
