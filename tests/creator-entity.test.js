@@ -22,9 +22,19 @@ function walk(value, nodes = []) {
 }
 
 function initialJsonLd(source) {
-  const blocks = [...source.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script\\s*>/gi)]
-    .filter(([, attributes]) => /\\btype\\s*=\\s*(?:"application\\/ld\\+json"|'application\\/ld\\+json')/i.test(attributes))
-    .map(([, , json]) => JSON.parse(json));
+  const open = '<script type="application/ld+json">';
+  const close = '</script>';
+  const blocks = [];
+  let cursor = 0;
+  while (true) {
+    const start = source.indexOf(open, cursor);
+    if (start < 0) break;
+    const bodyStart = start + open.length;
+    const end = source.indexOf(close, bodyStart);
+    assert.ok(end >= 0, 'JSON-LD script must close');
+    blocks.push(JSON.parse(source.slice(bodyStart, end)));
+    cursor = end + close.length;
+  }
   assert.ok(blocks.length > 0, 'initial HTML must contain parseable JSON-LD');
   return blocks.flatMap(block => walk(block));
 }
